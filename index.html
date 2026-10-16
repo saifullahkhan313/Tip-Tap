@@ -1,0 +1,973 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f7f7fb">
+
+  <meta name="description"
+    content="Tip Tap is a simple, smart and responsive counter built by Saifullah Khan.">
+
+  <title>Tip Tap — Smart Counter</title>
+
+  <!-- Custom SVG Favicon -->
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%236c5ce7'/%3E%3Cpath d='M32 15v34M15 32h34' stroke='white' stroke-width='7' stroke-linecap='round'/%3E%3Ccircle cx='47' cy='17' r='5' fill='%23a5f3fc'/%3E%3C/svg%3E"
+  >
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    /* =========================
+       1. ROOT & RESET
+    ========================= */
+
+    :root {
+      --bg: #f7f7fb;
+      --surface: #ffffff;
+      --text: #171725;
+      --muted: #858599;
+      --primary: #6c5ce7;
+      --primary-hover: #5948d8;
+      --primary-light: #efedff;
+      --border: #ececf3;
+      --success: #25875c;
+      --shadow: 0 24px 70px rgba(40, 35, 90, 0.08);
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+
+      background:
+        radial-gradient(
+          ellipse at 10% 10%,
+          #e9e5ff 0,
+          transparent 35%
+        ),
+        radial-gradient(
+          ellipse at 90% 90%,
+          #e3f5ff 0,
+          transparent 35%
+        ),
+        var(--bg);
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:focus-visible {
+      outline: 3px solid #a5f3fc;
+      outline-offset: 4px;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    /* =========================
+       2. NAVBAR
+    ========================= */
+
+    .navbar {
+      width: min(1100px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 26px 0;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      white-space: nowrap;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+
+      color: white;
+      background: var(--primary);
+      border-radius: 14px;
+      box-shadow: 0 6px 16px #6c5ce744;
+
+      font-size: 24px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+
+      padding: 9px 13px;
+      border: 1px solid #c8f0d9;
+      border-radius: 30px;
+
+      background: #e4f8ed;
+      color: var(--success);
+
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background: #25b875;
+      border-radius: 50%;
+    }
+
+    /* =========================
+       3. MAIN LAYOUT
+    ========================= */
+
+    main {
+      width: 100%;
+      flex: 1;
+
+      display: grid;
+      place-items: center;
+
+      padding: 35px 20px 60px;
+    }
+
+    .counter-card {
+      width: 100%;
+      max-width: 440px;
+      min-width: 0;
+
+      padding: 38px;
+      overflow: hidden;
+
+      text-align: center;
+
+      background: var(--surface);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 30px;
+      box-shadow: var(--shadow);
+
+      animation: appear 0.6s ease both;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+
+      padding: 9px 13px;
+      border-radius: 30px;
+
+      background: var(--primary-light);
+      color: var(--primary);
+
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin-top: 19px;
+
+      font-size: clamp(30px, 7vw, 40px);
+      font-weight: 800;
+      letter-spacing: -2px;
+    }
+
+    .subtitle {
+      margin-top: 10px;
+
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    /* =========================
+       4. COUNTER DISPLAY
+    ========================= */
+
+    .counter-display {
+      position: relative;
+
+      width: 100%;
+      min-height: 190px;
+      margin: 26px 0 18px;
+
+      display: grid;
+      place-items: center;
+
+      overflow: hidden;
+
+      background: linear-gradient(
+        145deg,
+        #f6f4ff,
+        #f8faff
+      );
+
+      border: 1px solid #efedff;
+      border-radius: 24px;
+    }
+
+    .counter-display::before,
+    .counter-display::after {
+      content: "";
+      position: absolute;
+
+      width: 120px;
+      height: 120px;
+
+      border-radius: 50%;
+      background: #6c5ce70b;
+
+      pointer-events: none;
+    }
+
+    .counter-display::before {
+      top: -65px;
+      left: -35px;
+    }
+
+    .counter-display::after {
+      right: -30px;
+      bottom: -70px;
+    }
+
+    .count {
+      position: relative;
+      z-index: 1;
+
+      max-width: 100%;
+      padding: 0 12px;
+
+      overflow-wrap: anywhere;
+      font-size: clamp(65px, 15vw, 100px);
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -5px;
+      font-variant-numeric: tabular-nums;
+
+      transition:
+        transform 0.15s ease,
+        color 0.15s ease;
+    }
+
+    .count.pop {
+      transform: scale(1.06);
+      color: var(--primary);
+    }
+
+    .count-label {
+      position: absolute;
+      z-index: 1;
+      bottom: 18px;
+
+      color: #9694b4;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+
+    /* =========================
+       5. CONTROL BUTTONS
+    ========================= */
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr 1fr;
+      gap: 12px;
+
+      margin-top: 20px;
+    }
+
+    .control-btn {
+      min-width: 0;
+      min-height: 56px;
+      height: 61px;
+
+      display: grid;
+      place-items: center;
+
+      border: none;
+      border-radius: 17px;
+
+      font-size: 25px;
+      font-weight: 700;
+
+      transition:
+        transform 0.18s ease,
+        background 0.18s ease,
+        box-shadow 0.18s ease;
+    }
+
+    .control-btn:active {
+      transform: scale(0.94);
+    }
+
+    .minus {
+      background: #f1f0fa;
+      color: var(--text);
+    }
+
+    .minus:hover {
+      background: #e7e4f8;
+    }
+
+    .plus {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 8px 20px #6c5ce733;
+    }
+
+    .plus:hover {
+      background: var(--primary-hover);
+      box-shadow: 0 10px 24px #6c5ce744;
+    }
+
+    /* =========================
+       6. RESET BUTTON
+    ========================= */
+
+    .reset-row {
+      display: flex;
+      justify-content: center;
+      margin-top: 22px;
+    }
+
+    .reset-btn {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+
+      padding: 10px 14px;
+
+      color: var(--muted);
+      background: transparent;
+      border: none;
+      border-radius: 10px;
+
+      font-size: 13px;
+      font-weight: 600;
+
+      transition:
+        color 0.2s ease,
+        background 0.2s ease;
+    }
+
+    .reset-btn:hover {
+      color: var(--primary);
+      background: #f5f4fb;
+    }
+
+    .reset-icon {
+      font-size: 18px;
+    }
+
+    /* =========================
+       7. KEYBOARD SHORTCUTS
+    ========================= */
+
+    .shortcut {
+      margin-top: 14px;
+
+      color: #aaa9b9;
+      font-size: 11px;
+      line-height: 2;
+    }
+
+    kbd {
+      display: inline-block;
+
+      margin: 0 2px;
+      padding: 3px 6px;
+
+      color: #77768b;
+      background: #fafafd;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+
+      font-family: inherit;
+      font-size: 10px;
+    }
+
+    /* =========================
+       8. TOAST NOTIFICATION
+    ========================= */
+
+    .toast {
+      position: fixed;
+      z-index: 10;
+
+      left: 50%;
+      bottom: 28px;
+
+      max-width: calc(100% - 32px);
+      padding: 12px 18px;
+
+      color: white;
+      background: #211f35;
+      border-radius: 12px;
+
+      font-size: 13px;
+      text-align: center;
+
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+
+      transform: translate(-50%, 12px);
+
+      transition:
+        opacity 0.25s ease,
+        transform 0.25s ease,
+        visibility 0.25s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, 0);
+    }
+
+    /* =========================
+       9. FOOTER
+    ========================= */
+
+    footer {
+      padding: 23px 15px 28px;
+
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.8;
+      text-align: center;
+    }
+
+    footer strong {
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    /* =========================
+       10. ANIMATIONS
+    ========================= */
+
+    @keyframes appear {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* =========================
+       11. TABLET
+    ========================= */
+
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 22px 0;
+      }
+
+      main {
+        padding: 25px 20px 45px;
+      }
+
+      .counter-card {
+        padding: 32px 25px;
+      }
+
+      .counter-display {
+        min-height: 180px;
+      }
+    }
+
+    /* =========================
+       12. MOBILE
+    ========================= */
+
+    @media (max-width: 600px) {
+      .navbar {
+        width: calc(100% - 32px);
+        padding: 18px 0;
+        gap: 10px;
+      }
+
+      .brand {
+        gap: 8px;
+        font-size: 19px;
+      }
+
+      .brand-icon {
+        width: 37px;
+        height: 37px;
+        border-radius: 12px;
+        font-size: 21px;
+      }
+
+      .status {
+        gap: 5px;
+        padding: 8px 10px;
+        font-size: 10px;
+      }
+
+      .status-dot {
+        width: 6px;
+        height: 6px;
+      }
+
+      main {
+        padding: 24px 16px 38px;
+      }
+
+      .counter-card {
+        max-width: 440px;
+        padding: 28px 20px;
+        border-radius: 25px;
+      }
+
+      h1 {
+        font-size: clamp(29px, 8vw, 36px);
+      }
+
+      .subtitle {
+        font-size: 13px;
+      }
+
+      .counter-display {
+        min-height: 170px;
+        margin-top: 24px;
+      }
+
+      .count {
+        font-size: clamp(56px, 18vw, 88px);
+        letter-spacing: -4px;
+      }
+
+      .controls {
+        gap: 9px;
+      }
+
+      .control-btn {
+        height: 59px;
+        border-radius: 14px;
+      }
+
+      .reset-row {
+        margin-top: 18px;
+      }
+
+      footer {
+        padding: 20px 12px;
+      }
+    }
+
+    /* =========================
+       13. SMALL MOBILE
+    ========================= */
+
+    @media (max-width: 360px) {
+      .navbar {
+        width: calc(100% - 24px);
+        gap: 7px;
+      }
+
+      .brand {
+        gap: 6px;
+        font-size: 17px;
+      }
+
+      .brand-icon {
+        width: 33px;
+        height: 33px;
+        font-size: 19px;
+      }
+
+      .status {
+        padding: 7px 8px;
+        font-size: 9px;
+      }
+
+      main {
+        padding: 20px 12px 30px;
+      }
+
+      .counter-card {
+        padding: 24px 14px;
+        border-radius: 21px;
+      }
+
+      .eyebrow {
+        padding: 8px 10px;
+        font-size: 10px;
+      }
+
+      .subtitle {
+        font-size: 12px;
+      }
+
+      .counter-display {
+        min-height: 155px;
+      }
+
+      .count {
+        font-size: clamp(50px, 17vw, 65px);
+        letter-spacing: -3px;
+      }
+
+      .controls {
+        gap: 7px;
+      }
+
+      .control-btn {
+        min-height: 52px;
+        height: 54px;
+        font-size: 22px;
+      }
+
+      .shortcut {
+        font-size: 10px;
+      }
+
+      kbd {
+        padding: 3px 4px;
+      }
+    }
+
+    /* =========================
+       14. REDUCED MOTION
+    ========================= */
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="brand">
+      <span class="brand-icon" aria-hidden="true">✳</span>
+      <span>Tip Tap</span>
+    </div>
+
+    <div class="status">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span>Ready to count</span>
+    </div>
+  </header>
+
+  <!-- Main Counter -->
+  <main>
+    <section class="counter-card" aria-labelledby="title">
+
+      <span class="eyebrow">✦ Simple &amp; Smart</span>
+
+      <h1 id="title">Your Counter</h1>
+
+      <p class="subtitle">
+        Every tap counts. Keep track of anything,<br>
+        one number at a time.
+      </p>
+
+      <!-- Counter Display -->
+      <div
+        class="counter-display"
+        role="group"
+        aria-label="Counter display"
+      >
+        <output
+          class="count"
+          id="count"
+          aria-live="polite"
+          aria-atomic="true"
+        >0</output>
+
+        <span class="count-label">CURRENT COUNT</span>
+      </div>
+
+      <!-- Counter Controls -->
+      <div class="controls">
+
+        <button
+          class="control-btn minus"
+          id="decrease"
+          type="button"
+          aria-label="Decrease count by one"
+          title="Decrease by one"
+        >−</button>
+
+        <button
+          class="control-btn plus"
+          id="increase"
+          type="button"
+          aria-label="Increase count by one"
+          title="Increase by one"
+        >+</button>
+
+        <button
+          class="control-btn minus"
+          id="step"
+          type="button"
+          aria-label="Increase count by five"
+          title="Add five"
+        >+5</button>
+
+      </div>
+
+      <!-- Reset -->
+      <div class="reset-row">
+        <button
+          class="reset-btn"
+          id="reset"
+          type="button"
+          aria-label="Reset counter to zero"
+        >
+          <span class="reset-icon" aria-hidden="true">↻</span>
+          Reset counter
+        </button>
+      </div>
+
+      <!-- Keyboard Shortcuts -->
+      <p class="shortcut">
+        Keyboard shortcuts:
+        <kbd>+</kbd> Increase
+        <kbd>−</kbd> Decrease
+        <kbd>0</kbd> Reset
+      </p>
+
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    Made with care · Built by <strong>Saifullah Khan</strong>
+  </footer>
+
+  <!-- Notifications -->
+  <div
+    class="toast"
+    id="toast"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+  <script>
+    /* =========================
+       1. SELECT ELEMENTS
+    ========================= */
+
+    const countDisplay = document.getElementById("count");
+    const increaseBtn = document.getElementById("increase");
+    const decreaseBtn = document.getElementById("decrease");
+    const stepBtn = document.getElementById("step");
+    const resetBtn = document.getElementById("reset");
+    const toast = document.getElementById("toast");
+
+    /* =========================
+       2. COUNTER STATE
+    ========================= */
+
+    let count = 0;
+    let toastTimer;
+    let animationTimer;
+
+    /* =========================
+       3. UPDATE DISPLAY
+    ========================= */
+
+    function updateCounter() {
+      countDisplay.textContent = count.toLocaleString("en-US");
+
+      countDisplay.classList.remove("pop");
+
+      // Restart animation
+      void countDisplay.offsetWidth;
+
+      countDisplay.classList.add("pop");
+
+      clearTimeout(animationTimer);
+
+      animationTimer = setTimeout(() => {
+        countDisplay.classList.remove("pop");
+      }, 160);
+    }
+
+    /* =========================
+       4. TOAST NOTIFICATION
+    ========================= */
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+
+      clearTimeout(toastTimer);
+
+      toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+      }, 1800);
+    }
+
+    /* =========================
+       5. INCREASE COUNTER
+    ========================= */
+
+    function increase(amount = 1) {
+      if (count > Number.MAX_SAFE_INTEGER - amount) {
+        showToast("Maximum safe count reached!");
+        return;
+      }
+
+      count += amount;
+
+      updateCounter();
+    }
+
+    /* =========================
+       6. DECREASE COUNTER
+    ========================= */
+
+    function decrease() {
+      if (count <= 0) {
+        showToast("Counter cannot go below zero.");
+        return;
+      }
+
+      count--;
+
+      updateCounter();
+    }
+
+    /* =========================
+       7. RESET COUNTER
+    ========================= */
+
+    function resetCounter() {
+      if (count === 0) {
+        showToast("Counter is already at zero.");
+        return;
+      }
+
+      count = 0;
+
+      updateCounter();
+
+      showToast("Counter reset successfully!");
+    }
+
+    /* =========================
+       8. BUTTON EVENTS
+    ========================= */
+
+    increaseBtn.addEventListener("click", () => {
+      increase();
+    });
+
+    decreaseBtn.addEventListener("click", () => {
+      decrease();
+    });
+
+    stepBtn.addEventListener("click", () => {
+      increase(5);
+    });
+
+    resetBtn.addEventListener("click", () => {
+      resetCounter();
+    });
+
+    /* =========================
+       9. KEYBOARD SHORTCUTS
+    ========================= */
+
+    document.addEventListener("keydown", (event) => {
+      const target = event.target;
+
+      // Avoid shortcuts when typing in editable fields
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+
+      if (event.ctrlKey || event.metaKey || event.altKey) {
+        return;
+      }
+
+      if (event.key === "+" || event.key === "=") {
+        event.preventDefault();
+        increase();
+      } else if (event.key === "-") {
+        event.preventDefault();
+        decrease();
+      } else if (event.key === "0") {
+        event.preventDefault();
+        resetCounter();
+      }
+    });
+
+  </script>
+
+</body>
+</html>
